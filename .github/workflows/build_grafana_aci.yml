@@ -116,4 +116,19 @@ jobs:
       run: |
         db_server_fqdn=$(az mysql server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)
         az container create --resource-group $resource_grp --name $con_name --image $con_image --os-type Linux --location $loc --restart-policy Always --ip-address Public --ports 3000 --dns-name-label $con_dns_name --environment-variables "GF_DATABASE_TYPE=mysql" "GF_DATABASE_HOST=$db_server_fqdn:3306" "GF_DATABASE_SSL_MODE=true" "GF_DATABASE_CA_CERT_PATH=/etc/ssl/certs/ca-cert-Baltimore_CyberTrust_Root.pem" "GF_DATABASE_SERVER_CERT_NAME=*.mysql.database.azure.com" --secure-environment-variables "GF_DATABASE_USER=$db_admin_name@$db_server_name" "GF_DATABASE_PASSWORD=${{ secrets.MYSQLADMIN_PASSWORD }}"
+    - name: Wait 5min for Grafana DB Init to Run
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '5s'
+    - name: Create Self Signed SSL Cert for Container
+      run: |
+        db_server_fqdn=$(az mysql server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)
+        con_fqdn=$(az container show --resource-group $resource_grp --name $con_name --query "ipAddress.fqdn" --output tsv)
+        openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout privateKey.key -out selfsigncert.crt -subj "/C=US/ST=TN/L=Nash/O=Super Sandbox/OU=Boxes/CN=$con_fqdn"
+        openssl x509 -text -noout -in selfsigncert.crt
+        openssl pkcs12 -export -out selfsigncert.pfx -inkey privateKey.key -in selfsigncert.crt -password pass:${{ secrets.MYSQLADMIN_PASSWORD }}
+        openssl pkcs12 -in selfsigncert.pfx -noout -info -password pass:${{ secrets.MYSQLADMIN_PASSWORD }}
+        scert_crt=$(<selfsigncert.crt)
+        priv_key=$(<privateKey.key)
+        az container create --resource-group $resource_grp --name $con_name --image $con_image --os-type Linux --location $loc --restart-policy Always --ip-address Public --ports 3000 --dns-name-label $con_dns_name --environment-variables "GF_DATABASE_TYPE=mysql" "GF_DATABASE_HOST=$db_server_fqdn:3306" "GF_DATABASE_SSL_MODE=true" "GF_DATABASE_CA_CERT_PATH=/etc/ssl/certs/ca-cert-Baltimore_CyberTrust_Root.pem" "GF_DATABASE_SERVER_CERT_NAME=*.mysql.database.azure.com" "GF_SERVER_PROTOCOL=https" "GF_SERVER_CERT_FILE=/mnt/secrets/selfsigncert.crt" "GF_SERVER_CERT_KEY=/mnt/secrets/privateKey.key" "GF_SERVER_ROOT_URL=https://$con_fqdn:3000" "GF_SECURITY_COOKIE_SECURE=true" "GF_SECURITY_STRICT_TRANSPORT_SECURITY=true" --secure-environment-variables "GF_DATABASE_USER=$db_admin_name@$db_server_name" "GF_DATABASE_PASSWORD=${{ secrets.MYSQLADMIN_PASSWORD }}" --secrets-mount-path "/mnt/secrets" --secrets "selfsigncert.crt=$scert_crt" "privateKey.key=$priv_key"
 
