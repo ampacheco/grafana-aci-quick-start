@@ -119,7 +119,7 @@ jobs:
     - name: Wait 5min for Grafana DB Init to Run
       uses: jakejarvis/wait-action@master
       with:
-        time: '5s'
+        time: '5m'
     - name: Create Self Signed SSL Cert for Container
       run: |
         db_server_fqdn=$(az mysql server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)
