@@ -47,13 +47,14 @@ Results:
   - New Azure Container Instance using the 'grafana/grafana' Docker image that is configured to 
     - Use the MySQL database provisioned
     - Have a public facing URL at the FQDN provided running on port 3000
+    - Self-Signed SSL encryption certificate is installed with 1 year expiration 
 
 # Considerations
 PLEASE make sure you have a plan when moving out of your sandbox. These are items that I've addressed and have experience deploying for a true enterprise-ready solution. So take my word you need to consider these! 
-- The current config does not have an SSL certificate applied which means there is no encryption in transit. This can be added in the Grafana configuration.
+- The current config applies a self-signed SSL encryption certificate which means there is encryption in transit yet not with a trusted certificate authority. You'll receive a security warning in your client browser that you will have to accept. This is fine for a sandbox yet not for production use.
 - Additional credentials should be created for the MySQL host so that least privilege access can be maintained. 
-The capacity settings for compute, memory, and storage are set to bare minimum. Validate which SKU's are the right fit. Grafana is very reasonable on resource usage so don't go crazy. 
-- Grafana supports SAML and OAuth, you should consider leveraging your existing enterprise directory/auth platform. 
+- The capacity settings for compute, memory, and storage are set to bare minimum. Validate which SKU's are the right fit. Grafana is very reasonable on resource usage so don't go crazy. 
+- Grafana supports SAML/OAuth/etc, you should consider leveraging your existing enterprise directory/auth platform. 
 - Grafana scales out well. You'd need to consider using additional Azure features to address load balancing and orchestration. 
 
 
