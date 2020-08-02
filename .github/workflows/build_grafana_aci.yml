@@ -116,10 +116,10 @@ jobs:
       run: |
         db_server_fqdn=$(az mysql server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)
         az container create --resource-group $resource_grp --name $con_name --image $con_image --os-type Linux --location $loc --restart-policy Always --ip-address Public --ports 3000 --dns-name-label $con_dns_name --environment-variables "GF_DATABASE_TYPE=mysql" "GF_DATABASE_HOST=$db_server_fqdn:3306" "GF_DATABASE_SSL_MODE=true" "GF_DATABASE_CA_CERT_PATH=/etc/ssl/certs/ca-cert-Baltimore_CyberTrust_Root.pem" "GF_DATABASE_SERVER_CERT_NAME=*.mysql.database.azure.com" --secure-environment-variables "GF_DATABASE_USER=$db_admin_name@$db_server_name" "GF_DATABASE_PASSWORD=${{ secrets.MYSQLADMIN_PASSWORD }}"
-    - name: Wait 5min for Grafana DB Init to Run
+    - name: Wait 3 min for Grafana DB Init to Run
       uses: jakejarvis/wait-action@master
       with:
-        time: '5m'
+        time: '3m'
     - name: Create Self Signed SSL Cert for Container
       run: |
         db_server_fqdn=$(az mysql server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)
