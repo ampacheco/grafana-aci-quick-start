@@ -25,26 +25,26 @@ on:
     inputs:
       resource_grp:
         description: 'Name for the new Azure resource group you want created.'
-        default: 'GrafanaSbx'
+        default: '000_AAA_APACHECO_GRF_AND_INFLUXDB'
         required: true
       loc:
         description: "The Azure region you want to use. For list run -> az account list-locations"
-        default: "southcentralus"
+        default: "eastus"
         required: true
       con_name:
         description: "Name for the Azure Container Instance that will host Grafana."
-        default: "grafanasbxcont"
+        default: "nslabsgrafana"
         required: true
       con_dns_name:
         description: "URL host name that will be added to the FQDN assigned by Azure. Please modify with a unique value -> this must be a globally unique value."
-        default: "[yourinitals]-grafanasbx"
+        default: "nslabsgrafana"
         required: true
       con_image:
         default: "grafana/grafana"
         description: 'Grafana Docker image to pull. Default is the latest.'
         required: true
       db_server_name:
-        default: "[your initials]-grafanasql"
+        default: "nslabs-grafanasql"
         description: 'Name for the MySQL DB host to create. Please modify with a unique value -> this must be a globally unique value.'
         required: true
       db_admin_name:
