@@ -100,7 +100,7 @@ jobs:
         db_server_fqdn="$(az mysql flexible-server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)"
     - name: Create Grafana DB
       run: |
-        db_server_fqdn=$(az mysql server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)
+        db_server_fqdn=$(az mysql flexible-server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)
         mysql -h $db_server_fqdn -u $db_admin_name@$db_server_name --password=${{ secrets.MYSQLADMIN_PASSWORD }} -e "CREATE DATABASE $db_name;"
         mysql -h $db_server_fqdn -u $db_admin_name@$db_server_name --password=${{ secrets.MYSQLADMIN_PASSWORD }} -e "SHOW DATABASES;"
 # ----
