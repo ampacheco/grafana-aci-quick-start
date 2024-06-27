@@ -93,7 +93,7 @@ jobs:
     - name: Provision MySQL service
       # Please create a new secret in your GitHub repo called MYSQLADMIN_PASSWORD and assign a password string
       run: |
-        az extension add --name db-up
+        az extension add --name db-up --allow-preview true
         az mysql up --resource-group $resource_grp --location $loc --server-name $db_server_name --sku-name B_Gen5_1 --backup-retention 7 --storage-size 5120 --admin-user $db_admin_name --admin-password ${{ secrets.MYSQLADMIN_PASSWORD }}
         db_server_fqdn="$(az mysql server show --resource-group $resource_grp --name $db_server_name --query "fullyQualifiedDomainName" --output tsv)"
     - name: Create Grafana DB
